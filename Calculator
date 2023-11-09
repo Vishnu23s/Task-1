@@ -1,0 +1,55 @@
+from tkinter import *
+
+def iCalc(source, side, color="powder blue"):
+    storeObj = Frame(source, borderwidth=4, bd=4, bg=color)
+    storeObj.pack(side=side, expand=YES, fill=BOTH)
+    return storeObj
+
+def button(source, side, text, command=None, color="powder blue"):
+    storeObj = Button(source, text=text, command=command, bg=color, fg="black", font=("Arial", 16))
+    storeObj.pack(side=side, expand=YES, fill=BOTH)
+    return storeObj
+
+class Calculator(Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.master = master
+        self.master.title('Calculator')
+        self.pack(expand=YES, fill=BOTH)
+        self.create_widgets()
+
+    def create_widgets(self):
+        display = StringVar()
+        Entry(self, relief=RIDGE, textvariable=display, justify='right', bd=30, bg="powder blue", font=("Arial", 20)).pack(side=TOP, expand=YES, fill=BOTH)
+
+        for clearButton in ["C"]:
+            erase = iCalc(self, TOP)
+            button(erase, LEFT, clearButton, lambda storeObj=display: storeObj.set(''), "red")
+
+        for numButton in ["789/", "456*", "123-", "0. +"]:
+            FunctionNum = iCalc(self, TOP)
+            for char in numButton:
+                button(FunctionNum, LEFT, char, lambda storeObj=display, q=char: storeObj.set(storeObj.get() + q), "lightgray")
+
+        EqualButton = iCalc(self, TOP)
+        for char in "=":
+            if char == '=':
+                btnEqual = button(EqualButton, LEFT, char, color="orange")
+                btnEqual.bind('<ButtonRelease-1>', lambda e, s=self, storeObj=display: s.calc(storeObj))
+            else:
+                button(EqualButton, LEFT, char, lambda storeObj=display, s=' %s ' % char: storeObj.set(storeObj.get() + s), "lightgray")
+
+        BackspaceButton = iCalc(self, TOP)
+        button(BackspaceButton, LEFT, '←', lambda storeObj=display: storeObj.set(storeObj.get()[:-1]), "lightgray")
+
+    def calc(self, display):
+        try:
+            display.set(eval(display.get()))
+        except:
+            display.set("ERROR")
+
+if __name__ == '__main__':
+    root = Tk()
+    root.geometry("400x600")  # Set the initial size of the calculator window
+    app = Calculator(master=root)
+    app.mainloop(
